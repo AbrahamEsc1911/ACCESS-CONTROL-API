@@ -24,6 +24,7 @@ export class Access1726684117677 implements MigrationInterface {
                 {
                     name: 'entry_date',
                     type: 'datetime',
+                    default: 'now()',
                     isNullable: false
                 },
                 {
