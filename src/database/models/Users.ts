@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
+import { Access } from "./Access"
 
 @Entity()
 export class Users extends BaseEntity {
@@ -22,4 +23,7 @@ export class Users extends BaseEntity {
 
     @Column({ name: 'phone'})
     phone!: number
+
+    @OneToMany(() => Access, access => access.user)
+    access!: Access[]
 }
