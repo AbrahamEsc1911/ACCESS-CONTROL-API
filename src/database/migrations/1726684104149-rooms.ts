@@ -25,7 +25,7 @@ export class Rooms1726684104149 implements MigrationInterface {
                     isNullable: false
                 },
                 {
-                    name: 'room type',
+                    name: 'room_type',
                     type: 'enum',
                     enum: ['meetings', 'office'],
                     isNullable: false,
