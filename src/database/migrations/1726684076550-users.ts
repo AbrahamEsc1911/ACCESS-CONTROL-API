@@ -39,7 +39,7 @@ export class Users1726684076550 implements MigrationInterface {
                     isNullable: false
                 },
                 {
-                    name: 'DNI',
+                    name: 'dni',
                     type: 'varchar',
                     length: '9',
                     isNullable: false,
