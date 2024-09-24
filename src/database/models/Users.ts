@@ -1,5 +1,6 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Access } from "./Access"
+import { AccessHistory } from "./AccessHistory"
 
 @Entity()
 export class Users extends BaseEntity {
@@ -26,4 +27,7 @@ export class Users extends BaseEntity {
 
     @OneToMany(() => Access, access => access.user)
     access!: Access[]
+
+    @OneToMany(() => AccessHistory, accessHistory => accessHistory.user)
+    accessHistory! : AccessHistory
 }

@@ -1,4 +1,6 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Users } from "./Users"
+import { Rooms } from "./Rooms"
 
 @Entity()
 export class AccessHistory extends BaseEntity{
@@ -18,4 +20,11 @@ export class AccessHistory extends BaseEntity{
     @Column({ name: 'exit_date'})
     exit_date!: Date
 
+    @ManyToOne(() => Users, user => user.accessHistory)
+    @JoinColumn({ name: 'user_id'})
+    user!: Users
+
+    @ManyToOne(() => Rooms, room => room.accessHistory)
+    @JoinColumn({ name: 'room_id'})
+    room!: Rooms
 }
