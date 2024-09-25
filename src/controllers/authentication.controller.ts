@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
-// import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
+import { Users } from "../database/models/Users";
 
 export const register = async (req: Request, res: Response) => {
     try {
 
-        const { email, password, StartUp, dni, phone } = req.body
+        const { email, name, password, StartUp, dni, phone } = req.body
 
-        if (!email || !password || !StartUp || !dni || phone) {
+        if (!email || !password || !StartUp || !dni || !phone) {
             return res.status(400).json(
                 {
                     success: false,
@@ -23,8 +24,35 @@ export const register = async (req: Request, res: Response) => {
                 }
             )
         }
+        if (dni.length !== 9) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'check DNI'
+                }
+            )
+        }
 
-        //TODO MIRAR SI HAY MAS VALIDACIONES, HASHEAR LA CONTRASENA Y GUARDAR LOS DATOS EN LA BD
+        const passHashed = bcrypt.hashSync(password, 10)
+
+       const newUser = await Users.create(
+        {
+            name: name,
+            email: email,
+            password: passHashed,
+            StartUp: StartUp,
+            dni: dni,
+            phone: phone
+        }
+       ).save()
+
+       const { password: pass, ...userWithoutPassword } = newUser;
+
+       res.json({
+        success: true,
+        message: 'user created',
+        data: userWithoutPassword
+       })
 
     } catch (error) {
         res.status(500).json(

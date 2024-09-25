@@ -11,7 +11,7 @@ export class Users extends BaseEntity {
     name!: string
     
     @Column({ name: 'StartUp'})
-    StarUp!: string
+    StartUp!: string
 
     @Column({ name: 'email'})
     email!: string
