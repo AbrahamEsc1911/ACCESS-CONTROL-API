@@ -48,6 +48,13 @@ export class Users1726684076550 implements MigrationInterface {
                     name: 'phone',
                     type: 'int',
                     isNullable: false
+                },
+                {
+                    name: 'role',
+                    type: 'enum',
+                    enum: ['user', 'admin'],
+                    default: "'user'",
+                    isNullable: false
                 }
             ]
         }))
