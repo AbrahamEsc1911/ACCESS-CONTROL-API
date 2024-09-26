@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken'
 import { Request, Response } from "express";
 import bcrypt from 'bcrypt';
 import { Users } from "../database/models/Users";
@@ -59,6 +60,74 @@ export const register = async (req: Request, res: Response) => {
             {
                 success: false,
                 message: 'Internal Error creating new user',
+                error: error
+            }
+        )
+    }
+}
+
+export const login = async (req: Request, res: Response) => {
+    try {
+
+        const {email, password} = req.body
+
+        if(!email || !password) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'email and password are required'
+                }
+            )
+        }
+
+        const user = await Users.findOne(
+            {
+                where: { email: email}
+            }
+        )
+
+        if(!user) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'email or pasword invalid'
+                }
+            )
+        }
+
+        const passCompared = bcrypt.compareSync(password, user.password)
+
+        if(!passCompared) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'email or password invalid'
+                }
+            )
+        }
+
+        const token = jwt.sign(
+            {
+                id: user.id,
+                role: user.role,
+                email: user.email
+            },
+            process.env.SECRET_KEY as string
+        )
+
+        res.json(
+            {
+                success: true,
+                message: 'user logged',
+                token: token
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'Server error while login',
                 error: error
             }
         )

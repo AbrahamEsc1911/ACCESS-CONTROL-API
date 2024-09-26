@@ -7,27 +7,30 @@ export class Users extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column({ name: 'name'})
+    @Column({ name: 'name' })
     name!: string
-    
-    @Column({ name: 'StartUp'})
+
+    @Column({ name: 'StartUp' })
     StartUp!: string
 
-    @Column({ name: 'email'})
+    @Column({ name: 'email' })
     email!: string
 
-    @Column({ name: 'password'})
+    @Column({ name: 'password' })
     password!: string
 
-    @Column({ name: 'dni'})
+    @Column({ name: 'dni' })
     dni!: string
 
-    @Column({ name: 'phone'})
+    @Column({ name: 'phone' })
     phone!: number
+
+    @Column({ name: 'role' })
+    role!: string
 
     @OneToMany(() => Access, access => access.user)
     access!: Access[]
 
     @OneToMany(() => AccessHistory, accessHistory => accessHistory.user)
-    accessHistory! : AccessHistory
+    accessHistory!: AccessHistory
 }
