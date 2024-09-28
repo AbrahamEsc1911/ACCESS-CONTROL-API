@@ -165,7 +165,7 @@ export const createNewReservation = async (req: Request, res: Response) => {
     }
 }
 
-export const updateReservation = async (req: Request, res: Response) => {
+export const  updateReservation = async (req: Request, res: Response) => {
     try {
 
         const reservationId = Number(req.params.reservationId)
@@ -225,6 +225,25 @@ export const updateReservation = async (req: Request, res: Response) => {
                 {
                     success: false,
                     message: 'you are not allowed to change this reservation'
+                }
+            )
+        }
+
+        const previusReservations = await Access.find(
+            {
+                where: {
+                    room_id: currentReservation.room_id,
+                    entry_date: LessThanOrEqual(end),
+                    exit_date: MoreThanOrEqual(start)
+                }
+            }
+        )
+
+        if (previusReservations.length > 0) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'room are not available in the selected date range'
                 }
             )
         }
