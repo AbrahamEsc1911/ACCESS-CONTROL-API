@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth";
-import { getAllReservations } from "../controllers/access.controller";
+import { createNewReservation, getAllReservations } from "../controllers/access.controller";
 
 const router = Router()
 
 router.get('/availability/:id', auth, getAllReservations)
+router.post('/reservation/:id', auth, createNewReservation)
 
 export { router }
