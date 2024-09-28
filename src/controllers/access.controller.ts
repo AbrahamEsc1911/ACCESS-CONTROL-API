@@ -21,7 +21,7 @@ export const currenStateRoomById = async (req: Request, res: Response) => {
     }
 }
 
-export const getAllReservations = async (req: Request, res: Response) => {
+export const getAllReservationsById = async (req: Request, res: Response) => {
     try {
 
         const id = Number(req.params.id)
@@ -75,9 +75,9 @@ export const getAllReservations = async (req: Request, res: Response) => {
 export const createNewReservation = async (req: Request, res: Response) => {
     try {
 
-        const roomId = Number(req.params.id)
+        const roomId = Number(req.params.roomId)
         const userId = Number(req.tokenData.id)
-        const {entry_date, exit_date} = req.body
+        const { entry_date, exit_date } = req.body
         const date = new Date()
 
         if (!roomId || !entry_date || !exit_date) {
@@ -128,7 +128,7 @@ export const createNewReservation = async (req: Request, res: Response) => {
             }
         )
 
-        if(previusReservations.length > 0) {
+        if (previusReservations.length > 0) {
             return res.status(400).json(
                 {
                     success: false,
@@ -153,13 +153,107 @@ export const createNewReservation = async (req: Request, res: Response) => {
                 data: newReservation
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {
                 success: false,
                 message: 'Internal error creating a new reservaton',
                 error: error
+            }
+        )
+    }
+}
+
+export const updateReservation = async (req: Request, res: Response) => {
+    try {
+
+        const reservationId = Number(req.params.reservationId)
+        const { room_id, entry_date, exit_date } = req.body
+        const date = new Date()
+        const userId = req.tokenData.id
+
+        if (!reservationId) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'reservation id is required'
+                }
+            )
+        }
+
+        if (!room_id && !entry_date && !exit_date) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'at least one value is required'
+                }
+            )
+        }
+
+        const start = new Date(entry_date)
+        const end = new Date(exit_date)
+
+        if (start < date || start > end) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'date range invalid'
+                }
+            )
+        }
+
+        const currentReservation = await Access.findOne(
+            {
+                where: {
+                    id: reservationId,
+                }
+            }
+        )
+
+        if (!currentReservation) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'current reservation is not available or doesnt exist'
+                }
+            )
+        }
+
+        if (userId !== currentReservation.user_id) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'you are not allowed to change this reservation'
+                }
+            )
+        }
+
+        const body = {
+            room_id: room_id || currentReservation.room_id,
+            entry_date: start || currentReservation.entry_date,
+            exit_date: end || currentReservation.exit_date
+        }
+
+        const updatedReservation = await Access.update(
+            {
+                id: reservationId
+            }, body
+        )
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'reservation updated successfully',
+                data: updatedReservation
+            }
+        )
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error updating reservations'
             }
         )
     }
