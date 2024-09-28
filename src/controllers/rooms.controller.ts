@@ -18,7 +18,7 @@ export const createNewRoom = async (req: Request, res: Response) => {
 
         const parsedCapacity = Number(capacity)
 
-        if(isNaN(parsedCapacity)) {
+        if (isNaN(parsedCapacity)) {
             return res.status(400).json(
                 {
                     success: false,
@@ -53,5 +53,77 @@ export const createNewRoom = async (req: Request, res: Response) => {
             }
         )
 
+    }
+}
+
+export const updateRoom = async (req: Request, res: Response) => {
+    try {
+
+        const id = Number(req.params.id)
+        const { room, capacity, room_type } = req.body
+
+        if(!id) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'the id is required'
+                }
+            )
+        }
+
+        if (!room && !capacity && !room_type) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'at least one value is required to update room information'
+                }
+            )
+        }
+
+        const currentRoom = await Rooms.findOne(
+            {
+                where: {
+                    id: id
+                }
+            }
+        )
+
+        if(!currentRoom) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'room not found'
+                }
+            )
+        }
+
+        const body = {
+            room: room || currentRoom.room,
+            capacity: capacity || currentRoom.capacity,
+            room_type: room_type || currentRoom.room_type
+        }
+
+        const roomUpdate = await Rooms.update(
+            {
+                id: id
+            }, body
+        )
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'room updated',
+                data: body
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                succcess: false,
+                message: 'Internar error updating room',
+                error: error
+            }
+        )
     }
 }
