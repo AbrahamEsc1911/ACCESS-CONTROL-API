@@ -254,7 +254,7 @@ export const  updateReservation = async (req: Request, res: Response) => {
             exit_date: end || currentReservation.exit_date
         }
 
-        const updatedReservation = await Access.update(
+        await Access.update(
             {
                 id: reservationId
             }, body
@@ -264,7 +264,7 @@ export const  updateReservation = async (req: Request, res: Response) => {
             {
                 success: true,
                 message: 'reservation updated successfully',
-                data: updatedReservation
+                data: body
             }
         )
 
