@@ -127,3 +127,26 @@ export const updateRoom = async (req: Request, res: Response) => {
         )
     }
 }
+
+export const getAllRooms = async (req: Request, res: Response) => {
+    try {
+
+        const allRooms = await Rooms.find()
+
+        res.json(
+            {
+                success: true,
+                message: 'all rooms retrieved',
+                data: allRooms
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'Error retriving all rooms'
+            }
+        )
+    }
+}
