@@ -150,3 +150,45 @@ export const getAllRooms = async (req: Request, res: Response) => {
         )
     }
 }
+
+export const deleteRoomById = async (req : Request, res: Response) => {
+    try {
+        const id = Number(req.params.id)
+
+        if(!id || isNaN(id)) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'id valid is required to delet a room'
+                }
+            )
+        }
+
+        const deletedRoom = await Rooms.delete(id)
+
+        if (deletedRoom.affected === 0) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "nothing found to delete"
+                }
+            )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: `room with id: ${id} deleted successfully`,
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error deleting room by id',
+                error: error
+            }
+        )
+    }
+}
