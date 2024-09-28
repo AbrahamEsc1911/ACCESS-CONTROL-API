@@ -9,7 +9,7 @@ export class Access extends BaseEntity {
     id!: number
 
     @Column({ name: 'user_id' })
-    name!: number
+    user_id!: number
 
     @Column({ name: 'room_id' })
     room_id!: number

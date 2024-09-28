@@ -24,7 +24,6 @@ export class Access1726684117677 implements MigrationInterface {
                 {
                     name: 'entry_date',
                     type: 'datetime',
-                    default: 'now()',
                     isNullable: false
                 },
                 {
@@ -35,8 +34,8 @@ export class Access1726684117677 implements MigrationInterface {
                 {
                     name: 'state',
                     type: 'enum',
-                    enum: ['entered', 'exited'],
-                    default: "'entered'"
+                    enum: ['ok', 'cancelled'],
+                    default: "'ok'"
                 }
             ],
             foreignKeys: [
