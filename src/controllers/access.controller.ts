@@ -332,7 +332,7 @@ export const deleteReservation = async (req: Request, res: Response) => {
     }
 }
 
-export const userAccess = async (req: Request, res: Response) => {
+export const entryAccess = async (req: Request, res: Response) => {
     try {
 
         const userId = req.tokenData.id
@@ -419,6 +419,52 @@ export const userAccess = async (req: Request, res: Response) => {
             {
                 success: false,
                 message: 'server internal error to allow access to user',
+                error: error
+            }
+        )
+    }
+}
+
+export const exitAccess = async (req: Request, res: Response) => {
+    try {
+
+        const userId = req.tokenData.id
+        const date = new Date()
+
+        
+
+        const userOut = await AccessHistory.update(
+            {
+                user_id: userId,
+                exit_date: IsNull()
+            }, 
+            {   
+                exit_date: date
+            }
+        )
+
+        if (userOut.affected === 0) {
+            return res.status(400).json(
+                {
+                    success: false, 
+                    message: 'you have to access first before exit the room'
+                }
+            )
+        }
+
+        res.status(400).json(
+            {
+                success: true,
+                message: 'you are out now, thanks for comming',
+                data: userOut
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'server internal error exiting access',
                 error: error
             }
         )
