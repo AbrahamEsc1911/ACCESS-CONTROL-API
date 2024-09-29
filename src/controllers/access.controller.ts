@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Access } from "../database/models/Access";
-import { Between, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
+import { Between, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
 import { Rooms } from "../database/models/Rooms";
 
 export const currenStateRoomById = async (req: Request, res: Response) => {
@@ -123,7 +123,8 @@ export const createNewReservation = async (req: Request, res: Response) => {
                 where: {
                     room_id: roomId,
                     entry_date: LessThanOrEqual(end),
-                    exit_date: MoreThanOrEqual(start)
+                    exit_date: MoreThanOrEqual(start),
+                    state: Not('cancelled')
                 }
             }
         )
@@ -234,7 +235,8 @@ export const  updateReservation = async (req: Request, res: Response) => {
                 where: {
                     room_id: currentReservation.room_id,
                     entry_date: LessThanOrEqual(end),
-                    exit_date: MoreThanOrEqual(start)
+                    exit_date: MoreThanOrEqual(start),
+                    state: Not('cancelled')
                 }
             }
         )
@@ -276,4 +278,56 @@ export const  updateReservation = async (req: Request, res: Response) => {
             }
         )
     }
+}
+
+export const deleteReservation = async (req: Request, res : Response) => {
+    try {
+
+        const reservationId = Number(req.params.reservationId)
+        const userId = req.tokenData.id
+
+        if (!reservationId) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'reservation id is required'
+                }
+            )
+        }
+
+        const reservationDeleted = await Access.update(
+            {
+                id: reservationId,
+                user_id: userId
+            }, {
+                state: 'cancelled'
+            }
+        )
+        
+        if (!reservationDeleted) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'reservation to delete not found'
+                }
+            )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'reservation have been cancelled',
+                data: reservationDeleted
+            }
+        )
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error deleting reservation'
+            }
+        )
+    }
+
 }
