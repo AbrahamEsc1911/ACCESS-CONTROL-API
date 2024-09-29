@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { auth } from "../middlewares/auth";
-import { createNewReservation, deleteReservation, entryAccess, exitAccess, getAllReservationsById, updateReservation } from "../controllers/access.controller";
+import { createNewReservation, currentRoom, deleteReservation, entryAccess, exitAccess, getAllReservationsById, updateReservation } from "../controllers/access.controller";
 
 const router = Router()
 
+router.get('/current/room/:roomId', auth, currentRoom)
 router.get('/availability/:id', auth, getAllReservationsById)
 router.post('/reservation/:roomId', auth, createNewReservation)
 router.post('/:roomId', auth, entryAccess )

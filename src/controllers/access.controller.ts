@@ -431,14 +431,14 @@ export const exitAccess = async (req: Request, res: Response) => {
         const userId = req.tokenData.id
         const date = new Date()
 
-        
+
 
         const userOut = await AccessHistory.update(
             {
                 user_id: userId,
                 exit_date: IsNull()
-            }, 
-            {   
+            },
+            {
                 exit_date: date
             }
         )
@@ -446,7 +446,7 @@ export const exitAccess = async (req: Request, res: Response) => {
         if (userOut.affected === 0) {
             return res.status(400).json(
                 {
-                    success: false, 
+                    success: false,
                     message: 'you have to access first before exit the room'
                 }
             )
@@ -459,12 +459,85 @@ export const exitAccess = async (req: Request, res: Response) => {
                 data: userOut
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {
                 success: false,
                 message: 'server internal error exiting access',
+                error: error
+            }
+        )
+    }
+}
+
+export const currentRoom = async (req: Request, res: Response) => {
+    try {
+        const roomId = Number(req.params.roomId)
+
+        const room = await Rooms.findOne(
+            {
+                where: {
+                    id: roomId
+                }
+            }
+        )
+
+        if (!room) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'room not found'
+                }
+            )
+        }
+
+        const roomStatus = await AccessHistory.find(
+            {
+                select: {
+                    id: true,
+                    user: {
+                        id: true,
+                        name: true,
+                        StartUp: true,
+                        email: true,
+                        phone: true
+                    },
+                    entry_date: true,
+                },
+                where: {
+                    room_id: roomId,
+                    exit_date: IsNull()
+                },
+                relations: {
+                    user: true
+                }
+            }
+        )
+
+        if (roomStatus.length <= 0) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'the room is currently empty'
+                }
+            )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: `curren state of room with id: ${roomId} and are ${roomStatus.length} people now`,
+                roomData: room,
+                data: roomStatus
+            }
+        )
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error generting information of current room',
                 error: error
             }
         )
