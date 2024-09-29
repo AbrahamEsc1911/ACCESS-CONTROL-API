@@ -76,3 +76,65 @@ export const userCurrentAccess = async (req: Request, res: Response) => {
         )
     }
 }
+
+export const accessHistory = async (req: Request, res: Response) => {
+    try {
+        const userId = Number(req.params.id)
+
+        if(!userId) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'user id is required'
+                }
+            )
+        }
+
+        const userHistory = await AccessHistory.find(
+            {
+                select: {
+                    user: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phone: true,
+                        StartUp: true
+                    },
+                },
+                where: {
+                    user_id: userId
+                },
+                relations: {
+                    room: true,
+                    user: true
+                }
+            }
+        )
+
+        if (userHistory.length === 0) {
+            return res.status(200).json(
+                {
+                    success: true,
+                    message: 'User has not any records yet'
+                }
+            )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'user access history',
+                data: userHistory
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: true,
+                messaga: 'Internal error retriving user access history',
+                error: error
+            }
+        )
+    }
+}
