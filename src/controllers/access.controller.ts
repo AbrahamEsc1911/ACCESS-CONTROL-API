@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { Access } from "../database/models/Access";
-import { Between, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
+import { Between, IsNull, LessThanOrEqual, MoreThanOrEqual, Not } from "typeorm";
 import { Rooms } from "../database/models/Rooms";
+import { AccessHistory } from "../database/models/AccessHistory";
 
 export const currenStateRoomById = async (req: Request, res: Response) => {
     try {
@@ -166,7 +167,7 @@ export const createNewReservation = async (req: Request, res: Response) => {
     }
 }
 
-export const  updateReservation = async (req: Request, res: Response) => {
+export const updateReservation = async (req: Request, res: Response) => {
     try {
 
         const reservationId = Number(req.params.reservationId)
@@ -280,7 +281,7 @@ export const  updateReservation = async (req: Request, res: Response) => {
     }
 }
 
-export const deleteReservation = async (req: Request, res : Response) => {
+export const deleteReservation = async (req: Request, res: Response) => {
     try {
 
         const reservationId = Number(req.params.reservationId)
@@ -300,10 +301,10 @@ export const deleteReservation = async (req: Request, res : Response) => {
                 id: reservationId,
                 user_id: userId
             }, {
-                state: 'cancelled'
-            }
+            state: 'cancelled'
+        }
         )
-        
+
         if (!reservationDeleted) {
             return res.status(404).json(
                 {
@@ -329,5 +330,97 @@ export const deleteReservation = async (req: Request, res : Response) => {
             }
         )
     }
+}
 
+export const userAccess = async (req: Request, res: Response) => {
+    try {
+
+        const userId = req.tokenData.id
+        const roomId = Number(req.params.roomId)
+        const date = new Date()
+
+        if (!roomId) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'room id is required to access'
+                }
+            )
+        }
+
+        const roomToAccess = await Rooms.findOne(
+            {
+                where: {
+                    id: roomId
+                }
+            }
+        )
+
+        if (!roomToAccess) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'room not found'
+                }
+            )
+        }
+
+        const userIn = await AccessHistory.find(
+            {
+                where: {
+                    user_id: userId,
+                    room_id: roomId,
+                    exit_date: IsNull()
+                }
+            }
+        )
+
+        if (userIn.length > 0) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'you are already in'
+                }
+            )
+        }
+
+        const usersInRoom = await AccessHistory.createQueryBuilder('accessHistory')
+            .where('accessHistory.room_id = :roomId', { roomId })
+            .andWhere('accessHistory.exit_date IS NULL')
+            .getCount()
+
+        if (usersInRoom >= roomToAccess.capacity) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'acccess not granted because the room is already full'
+                }
+            )
+        }
+
+        const access = await AccessHistory.create(
+            {
+                user_id: userId,
+                room_id: roomId,
+                entry_date: date
+            }
+        ).save()
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'access granted',
+                data: access
+            }
+        )
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'server internal error to allow access to user',
+                error: error
+            }
+        )
+    }
 }
