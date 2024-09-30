@@ -34,8 +34,8 @@ export class Access1726684117677 implements MigrationInterface {
                 {
                     name: 'state',
                     type: 'enum',
-                    enum: ['ok', 'cancelled'],
-                    default: "'ok'"
+                    enum: ['reserved', 'in_use', 'no_show', 'cancelled'],
+                    default: "'reserved'"
                 }
             ],
             foreignKeys: [
