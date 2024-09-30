@@ -338,6 +338,7 @@ export const entryAccess = async (req: Request, res: Response) => {
         const userId = req.tokenData.id
         const roomId = Number(req.params.roomId)
         const date = new Date()
+        const timeLimitInMins = 30
 
         if (!roomId) {
             return res.status(400).json(
@@ -384,7 +385,36 @@ export const entryAccess = async (req: Request, res: Response) => {
             )
         }
 
-        const usersInRoom = await AccessHistory.createQueryBuilder('accessHistory')
+        const reservations = await Access
+            .createQueryBuilder('reservation')
+            .where('reservation.user_id = :userId', { userId })
+            .andWhere('reservation.room_id = :roomId', { roomId })
+            .andWhere('DATE(reservation.entry_date) = DATE(:date)', { date })
+            .getMany();
+
+        if (reservations.length > 0){
+            reservations.forEach(async (reservation) => {
+                const entryDate = reservation.entry_date
+
+                const differenceInMs = entryDate.getTime() - date.getTime()
+                const differenceInMins = differenceInMs / (1000 * 60)
+
+                if ((differenceInMins >= -10 && differenceInMins <= 0) || (differenceInMins > 0 && differenceInMins <= timeLimitInMins))
+
+                await Access.update(
+                    {
+                        user_id: userId,
+                        room_id: roomId
+                    },
+                    {
+                        state: 'used'
+                    }
+                )
+            })
+        }
+
+        const usersInRoom = await AccessHistory
+            .createQueryBuilder('accessHistory')
             .where('accessHistory.room_id = :roomId', { roomId })
             .andWhere('accessHistory.exit_date IS NULL')
             .getCount()
