@@ -78,3 +78,71 @@ export const accessHistory = async (req: Request, res : Response) => {
         )
     }
 }
+
+export const accessHistoriesRoomById = async (req: Request, res: Response) => {
+    try {
+
+        const roomId = Number(req.params.id)
+        const { start_date, end_date } = req.query
+
+        if (!roomId || !start_date || !end_date) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'all values are required'
+                }
+            )
+        }
+
+        const startDate = new Date(String(start_date))
+        const endDate = new Date(String(end_date))
+
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || isNaN(roomId)) {
+            return res.status(400).json(
+                {
+                    success: false,
+                    message: 'Invalid date format, Please use YYYY-MM-DD format'
+                }
+            )
+        }
+
+        const historiesById = await AccessHistory.find(
+            {
+                where: {
+                    room_id: roomId,
+                    entry_date: Between(startDate, endDate)
+                },
+                relations: {
+                    room: true,
+                    user: true
+                }
+            }
+        )
+
+        if(historiesById.length === 0) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'no history to show'
+                }
+            )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'showing access historories of room by id and range of dates',
+                data: historiesById
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error getting access histories by room id',
+                error: error
+            }
+        )
+    }
+}
