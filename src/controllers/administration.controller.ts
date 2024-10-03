@@ -174,12 +174,10 @@ export const roomUsage = async (req: Request, res: Response) => {
             .groupBy("reservation.state")
             .getRawMany();
 
-        const ReservedCount = stateCount.find(s => s.state === 'reserved')
         const usedCount = stateCount.find(s => s.state === 'used')?.count || 0;
         const cancelledCount = stateCount.find(s => s.state === 'cancelled')?.count || 0;
         const noShowCount = stateCount.find(s => s.state === 'no_show')?.count || 0;
 
-        const reservedPercentage = (ReservedCount / totalReservation) * 100;
         const usedPercentage = (usedCount / totalReservation) * 100;
         const cancelledPercentage = (cancelledCount / totalReservation) * 100;
         const noShowPercentage = (noShowCount / totalReservation) * 100;
@@ -196,7 +194,6 @@ export const roomUsage = async (req: Request, res: Response) => {
                 success: true,
                 message: 'room usage data',
                 totalReservation,
-                reservedPercentage,
                 usedPercentage,
                 cancelledPercentage,
                 noShowPercentage,
