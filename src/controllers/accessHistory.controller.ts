@@ -30,6 +30,17 @@ export const accessHistory = async (req: Request, res : Response) => {
 
         const accessHistory = await AccessHistory.find(
             {
+                select: {
+                    user: {
+                        id: true,
+                        name: true,
+                        StartUp: true,
+                        email: true,
+                        password: false,
+                        phone: true,
+                        dni: true,
+                    },
+                },
                 where: {
                     entry_date: Between(startDate, endDate)
                 },
