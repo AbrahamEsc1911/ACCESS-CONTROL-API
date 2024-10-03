@@ -131,7 +131,7 @@ export const accessHistoriesRoomById = async (req: Request, res: Response) => {
         res.status(200).json(
             {
                 success: true,
-                message: 'showing access historories of room by id and range of dates',
+                message: 'showing access histories of room by id and range of dates',
                 data: historiesById
             }
         )

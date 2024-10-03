@@ -163,3 +163,54 @@ export const report = async (req: Request, res: Response) => {
         )
     }
 }
+
+export const roomUsage = async (req: Request, res: Response) => {
+    try {
+
+        const totalReservation = await Access.count()
+
+        const stateCount = await Access.createQueryBuilder("reservation")
+            .select("reservation.state, COUNT(*) AS count")
+            .groupBy("reservation.state")
+            .getRawMany();
+
+        const ReservedCount = stateCount.find(s => s.state === 'reserved')
+        const usedCount = stateCount.find(s => s.state === 'used')?.count || 0;
+        const cancelledCount = stateCount.find(s => s.state === 'cancelled')?.count || 0;
+        const noShowCount = stateCount.find(s => s.state === 'no_show')?.count || 0;
+
+        const reservedPercentage = (ReservedCount / totalReservation) * 100;
+        const usedPercentage = (usedCount / totalReservation) * 100;
+        const cancelledPercentage = (cancelledCount / totalReservation) * 100;
+        const noShowPercentage = (noShowCount / totalReservation) * 100;
+
+        const roomUsage = await Access
+            .createQueryBuilder("reservation")
+            .select("reservation.room_id, COUNT(*) AS count")
+            .groupBy("reservation.room_id")
+            .orderBy("count", "DESC")
+            .getRawMany();
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'room usage data',
+                totalReservation,
+                reservedPercentage,
+                usedPercentage,
+                cancelledPercentage,
+                noShowPercentage,
+                roomUsage
+            }
+        )
+
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal error retriving rooms usage',
+                error: error
+            }
+        )
+    }
+}
