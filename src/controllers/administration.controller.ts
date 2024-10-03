@@ -140,6 +140,9 @@ export const report = async (req: Request, res: Response) => {
             {
                 where: {
                     entry_date: Between(startDate, endDate)
+                },
+                relations: {
+                    room: true,
                 }
             }
         )
