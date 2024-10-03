@@ -183,9 +183,10 @@ export const roomUsage = async (req: Request, res: Response) => {
         const noShowPercentage = (noShowCount / totalReservation) * 100;
 
         const roomUsage = await Access
-            .createQueryBuilder("reservation")
-            .select("reservation.room_id, COUNT(*) AS count")
-            .groupBy("reservation.room_id")
+            .createQueryBuilder("access") 
+            .select("access.room_id, room.room, COUNT(*) AS count")  
+            .innerJoin("access.room", "room")  
+            .groupBy("access.room_id, room.room") 
             .orderBy("count", "DESC")
             .getRawMany();
 

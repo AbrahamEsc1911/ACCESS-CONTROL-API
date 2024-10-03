@@ -29,6 +29,6 @@ export class Access extends BaseEntity {
 
     @ManyToOne(() => Rooms, room => room.access)
     @JoinColumn({ name: 'room_id' })
-    room!: Rooms[]
+    room!: Rooms
 
 }
