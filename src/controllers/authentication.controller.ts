@@ -49,7 +49,7 @@ export const register = async (req: Request, res: Response) => {
 
        const { password: pass, ...userWithoutPassword } = newUser;
 
-       res.json({
+       res.status(201).json({
         success: true,
         message: 'user created',
         data: userWithoutPassword
@@ -113,7 +113,7 @@ export const registerAdmin = async (req: Request, res: Response) => {
 
        const { password: pass, ...userWithoutPassword } = newAdmin;
 
-       res.json({
+       res.status(201).json({
         success: true,
         message: 'admin created',
         data: userWithoutPassword
@@ -179,7 +179,7 @@ export const login = async (req: Request, res: Response) => {
             process.env.SECRET_KEY as string
         )
 
-        res.json(
+        res.status(200).json(
             {
                 success: true,
                 message: 'user logged',

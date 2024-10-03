@@ -47,7 +47,7 @@ export const getAllReservationsById = async (req: Request, res: Response) => {
         )
 
         if (allReservations.length === 0) {
-            return res.status(404).json(
+            return res.status(200).json(
                 {
                     success: true,
                     message: 'No appointments between this dates'
@@ -113,7 +113,7 @@ export const createNewReservation = async (req: Request, res: Response) => {
         if (!room) {
             return res.status(404).json(
                 {
-                    success: true,
+                    success: false,
                     message: 'Room not found'
                 }
             )
@@ -482,7 +482,7 @@ export const exitAccess = async (req: Request, res: Response) => {
             )
         }
 
-        res.status(400).json(
+        res.status(200).json(
             {
                 success: true,
                 message: 'you are out now, thanks for comming',
