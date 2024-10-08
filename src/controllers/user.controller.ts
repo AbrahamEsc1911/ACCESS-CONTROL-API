@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { json, Request, Response } from "express"
 import { Users } from "../database/models/Users"
 import { AccessHistory } from "../database/models/AccessHistory"
 import { IsNull } from "typeorm"
@@ -133,6 +133,61 @@ export const accessHistory = async (req: Request, res: Response) => {
             {
                 success: true,
                 messaga: 'Internal error retriving user access history',
+                error: error
+            }
+        )
+    }
+}
+
+export const userProfile = async (req: Request, res: Response) => {
+    try {
+        const userId = req.tokenData.id
+
+        if(!userId) {
+           return res.status(400).json(
+                {
+                    success: false,
+                    message: 'you are not allowed'
+                }
+            )
+        }
+
+        const profile = await Users.findOne(
+            {   select: {
+                name: true,
+                StartUp: true,
+                email: true,
+                dni: true,
+                phone: true
+            },
+                where: {
+                    id: userId
+                }
+            }
+        )
+
+        if (!profile) {
+           return res.status(404).json(
+            {
+                success: false,
+                message: 'user not found or deleted'
+            }
+           )
+        }
+
+        res.status(200).json(
+            {
+                success: true,
+                message: 'user profile retrived',
+                data: profile
+            }
+        )
+        
+    } catch (error) {
+        res.status(500).json(
+            {
+                success: false,
+                message: 'internal server error retriving user profile',
                 error: error
             }
         )
