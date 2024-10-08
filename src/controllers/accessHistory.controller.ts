@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AccessHistory } from "../database/models/AccessHistory";
 import { Between } from "typeorm";
 
-export const accessHistory = async (req: Request, res : Response) => {
+export const accessHistory = async (req: Request, res: Response) => {
     try {
 
         const { start_date, end_date } = req.query
@@ -51,7 +51,7 @@ export const accessHistory = async (req: Request, res : Response) => {
             }
         )
 
-        if(accessHistory.length === 0) {
+        if (accessHistory.length === 0) {
             return res.status(404).json(
                 {
                     success: false,
@@ -67,7 +67,7 @@ export const accessHistory = async (req: Request, res : Response) => {
                 data: accessHistory
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {
@@ -119,7 +119,7 @@ export const accessHistoriesRoomById = async (req: Request, res: Response) => {
             }
         )
 
-        if(historiesById.length === 0) {
+        if (historiesById.length === 0) {
             return res.status(404).json(
                 {
                     success: false,
@@ -135,7 +135,7 @@ export const accessHistoriesRoomById = async (req: Request, res: Response) => {
                 data: historiesById
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {
@@ -146,3 +146,60 @@ export const accessHistoriesRoomById = async (req: Request, res: Response) => {
         )
     }
 }
+
+export const accessHistoryCurrentMonthByUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.tokenData.id;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+        const currentDate = new Date();
+        const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        const accessHistory = await AccessHistory.find({
+            select: {
+                user: {
+                    id: true,
+                    name: true,
+                    StartUp: true,
+                    email: true,
+                    password: false,
+                    phone: true,
+                    dni: true,
+                },
+            },
+            where: {
+                user: { id: userId },
+                entry_date: Between(startDate, endDate)
+            },
+            relations: {
+                room: true,
+                user: true
+            }
+        });
+
+        if (accessHistory.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No access history found for the current month and user'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Access history for the current month and user',
+            data: accessHistory
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Internal error retrieving access history',
+            error: error
+        });
+    }
+};
