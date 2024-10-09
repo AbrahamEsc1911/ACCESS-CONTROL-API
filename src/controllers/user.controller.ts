@@ -6,7 +6,7 @@ import { IsNull } from "typeorm"
 export const userCurrentAccess = async (req: Request, res: Response) => {
     try {
 
-        const userId = Number(req.params.id)
+        const userId = req.tokenData.id
 
         const user = await Users.findOne(
             {
@@ -52,19 +52,26 @@ export const userCurrentAccess = async (req: Request, res: Response) => {
         if (!userCurrent) {
             return res.status(200).json(
                 {
-                    success: true,
+                    success: false,
                     message: 'user has no records yet'
                 }
             )
         }
 
-        res.status(200).json(
-            {
+        if (!userCurrent.exit_date) {
+            return res.status(200).json({
                 success: true,
-                message: 'curren state of user',
+                message: 'The user is still inside the premises',
                 data: userCurrent
-            }
-        )
+            })
+        } else {
+            return res.status(200).json(
+                {
+                    success: false,
+                    message: 'User is out installations',
+                    data: userCurrent
+                })
+        }
 
     } catch (error) {
         res.status(500).json(
@@ -79,9 +86,13 @@ export const userCurrentAccess = async (req: Request, res: Response) => {
 
 export const accessHistory = async (req: Request, res: Response) => {
     try {
-        const userId = Number(req.params.id)
+        const userId = req.tokenData.id
+        const page = Number(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
 
-        if(!userId) {
+
+        if (!userId) {
             return res.status(400).json(
                 {
                     success: false,
@@ -90,7 +101,7 @@ export const accessHistory = async (req: Request, res: Response) => {
             )
         }
 
-        const userHistory = await AccessHistory.find(
+        const [userHistory, total] = await AccessHistory.findAndCount(
             {
                 select: {
                     user: {
@@ -107,7 +118,9 @@ export const accessHistory = async (req: Request, res: Response) => {
                 relations: {
                     room: true,
                     user: true
-                }
+                },
+                skip: skip,
+                take: limit,
             }
         )
 
@@ -124,10 +137,13 @@ export const accessHistory = async (req: Request, res: Response) => {
             {
                 success: true,
                 message: 'user access history',
-                data: userHistory
+                data: userHistory,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+                totalRecords: total,
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {
@@ -143,8 +159,8 @@ export const userProfile = async (req: Request, res: Response) => {
     try {
         const userId = req.tokenData.id
 
-        if(!userId) {
-           return res.status(400).json(
+        if (!userId) {
+            return res.status(400).json(
                 {
                     success: false,
                     message: 'you are not allowed'
@@ -153,13 +169,14 @@ export const userProfile = async (req: Request, res: Response) => {
         }
 
         const profile = await Users.findOne(
-            {   select: {
-                name: true,
-                StartUp: true,
-                email: true,
-                dni: true,
-                phone: true
-            },
+            {
+                select: {
+                    name: true,
+                    StartUp: true,
+                    email: true,
+                    dni: true,
+                    phone: true
+                },
                 where: {
                     id: userId
                 }
@@ -167,12 +184,12 @@ export const userProfile = async (req: Request, res: Response) => {
         )
 
         if (!profile) {
-           return res.status(404).json(
-            {
-                success: false,
-                message: 'user not found or deleted'
-            }
-           )
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: 'user not found or deleted'
+                }
+            )
         }
 
         res.status(200).json(
@@ -182,7 +199,7 @@ export const userProfile = async (req: Request, res: Response) => {
                 data: profile
             }
         )
-        
+
     } catch (error) {
         res.status(500).json(
             {

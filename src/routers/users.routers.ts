@@ -6,7 +6,7 @@ import { isAdmin } from "../middlewares/isAdmin";
 const router = Router()
 
 router.get('/', auth, userProfile)
-router.get('/current-access/:id', auth, isAdmin, userCurrentAccess)
-router.get('/access-history/:id', auth, isAdmin, accessHistory)
+router.get('/current-access/', auth, userCurrentAccess)
+router.get('/access-history/:id', auth, accessHistory)
 
 export { router }
