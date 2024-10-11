@@ -7,6 +7,6 @@ const router = Router()
 
 router.get('/', auth, userProfile)
 router.get('/current-access/', auth, userCurrentAccess)
-router.get('/access-history/:id', auth, accessHistory)
+router.get('/access-history/', auth, accessHistory)
 
 export { router }
