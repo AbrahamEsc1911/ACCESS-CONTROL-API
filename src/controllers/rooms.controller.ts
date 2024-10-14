@@ -133,6 +133,15 @@ export const getAllRooms = async (req: Request, res: Response) => {
 
         const allRooms = await Rooms.find()
 
+        if(allRooms.length === 0) {
+            return res.status(404).json(
+                {
+                    success: false,
+                    message: "There are not rooms created yet, create one"
+                }
+            )
+        }
+
         res.json(
             {
                 success: true,
