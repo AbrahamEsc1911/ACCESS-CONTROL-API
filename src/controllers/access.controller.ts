@@ -22,46 +22,48 @@ export const currenStateRoomById = async (req: Request, res: Response) => {
     }
 }
 
-export const getAllReservationsById = async (req: Request, res: Response) => {
+export const getFutureReservationsByUserId = async (req: Request, res: Response) => {
+
+    const userId = Number(req.tokenData.id)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     try {
 
-        const id = Number(req.params.id)
-        const { start_date, end_date } = req.query
-
-        if (!start_date) {
-            return res.status(400).json(
-                {
-                    success: false,
-                    message: 'start date is required to filter the results'
-                }
-            )
-        }
-
-        const allReservations = await Access.find(
-            {
-                where: {
-                    room_id: id,
-                    entry_date: Between(new Date(start_date as string), new Date(end_date as string || start_date as string))
-                }
+        const allReservations = await Access.find({
+            select: {
+                user: {
+                    id: true,
+                    name: true,
+                    StartUp: true,
+                    email: true,
+                    password: false,
+                    phone: true,
+                    dni: true,
+                },
+            },
+            where: {
+                user_id: userId,
+                entry_date: Between(today, new Date(9999, 11, 31)) // Hasta una fecha futura lejana
+            },
+            relations: {
+                room: true,
+                user: true
             }
-        )
+        });
 
         if (allReservations.length === 0) {
-            return res.status(200).json(
-                {
-                    success: true,
-                    message: 'No appointments between this dates'
-                }
-            )
+            return res.status(200).json({
+                success: true,
+                message: 'No appointments from today onwards'
+            });
         }
 
-        res.status(200).json(
-            {
-                success: true,
-                message: 'all apointments for this dates',
-                date: allReservations
-            }
-        )
+        res.status(200).json({
+            success: true,
+            message: 'All appointments from today onwards',
+            data: allReservations
+        });
 
     } catch (error) {
         res.status(500).json(
@@ -392,7 +394,7 @@ export const entryAccess = async (req: Request, res: Response) => {
             .andWhere('DATE(reservation.entry_date) = DATE(:date)', { date })
             .getMany();
 
-        if (reservations.length > 0){
+        if (reservations.length > 0) {
             reservations.forEach(async (reservation) => {
                 const entryDate = reservation.entry_date
 
@@ -401,15 +403,15 @@ export const entryAccess = async (req: Request, res: Response) => {
 
                 if ((differenceInMins >= -10 && differenceInMins <= 0) || (differenceInMins > 0 && differenceInMins <= timeLimitInMins))
 
-                await Access.update(
-                    {
-                        user_id: userId,
-                        room_id: roomId
-                    },
-                    {
-                        state: 'used'
-                    }
-                )
+                    await Access.update(
+                        {
+                            user_id: userId,
+                            room_id: roomId
+                        },
+                        {
+                            state: 'used'
+                        }
+                    )
             })
         }
 
