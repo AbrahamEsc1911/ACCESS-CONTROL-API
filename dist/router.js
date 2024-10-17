@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.router = void 0;
+const express_1 = require("express");
+const auth_routers_1 = require("./routers/auth.routers");
+const rooms_routers_1 = require("./routers/rooms.routers");
+const access_routers_1 = require("./routers/access.routers");
+const users_routers_1 = require("./routers/users.routers");
+const administration_routers_1 = require("./routers/administration.routers");
+const accessHistory_router_1 = require("./routers/accessHistory.router");
+const router = (0, express_1.Router)();
+exports.router = router;
+router.use('/auth', auth_routers_1.router);
+router.use('/rooms', rooms_routers_1.router);
+router.use('/access', access_routers_1.router);
+router.use('/users', users_routers_1.router);
+router.use('/administration', administration_routers_1.router);
+router.use('/access_histories', accessHistory_router_1.router);

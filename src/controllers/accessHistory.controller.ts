@@ -47,7 +47,10 @@ export const accessHistory = async (req: Request, res: Response) => {
                 relations: {
                     room: true,
                     user: true
-                }
+                },
+                order: {
+                    entry_date: 'DESC', 
+                },
             }
         )
 
@@ -115,7 +118,10 @@ export const accessHistoriesRoomById = async (req: Request, res: Response) => {
                 relations: {
                     room: true,
                     user: true
-                }
+                },
+                order: {
+                    entry_date: 'DESC', 
+                },
             }
         )
 

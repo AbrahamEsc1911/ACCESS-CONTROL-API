@@ -9,7 +9,8 @@
     "dev": "nodemon ./src/main.ts",
     "migrate": "typeorm-ts-node-commonjs migration:run -d ./src/database/db.ts",
     "revert:migrations": "npx typeorm-ts-node-commonjs migration:revert -d ./src/database/db.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "seed": "node src/seeders/index.js"
   },
   "author": "",
   "license": "ISC",
