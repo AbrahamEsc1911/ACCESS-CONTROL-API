@@ -46,7 +46,7 @@ export class Users1726684076550 implements MigrationInterface {
                 },
                 {
                     name: 'phone',
-                    type: 'int',
+                    type: 'BIGINT',
                     isNullable: false
                 },
                 {
