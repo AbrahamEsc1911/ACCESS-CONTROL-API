@@ -10,7 +10,7 @@
     "migrate": "typeorm-ts-node-commonjs migration:run -d ./src/database/db.ts",
     "revert:migrations": "npx typeorm-ts-node-commonjs migration:revert -d ./src/database/db.ts",
     "build": "tsc",
-    "seed": "node src/seeders/index.js"
+    "seed": "npx ts-node ./src/database/seeders/index.ts"
   },
   "author": "",
   "license": "ISC",
