@@ -52,9 +52,7 @@ export const userSeeders = async () => {
     console.log('----------------')
 
   } finally {
-
-    AppDataSource.destroy()
-
+    await AppDataSource.destroy()
   }
 }
 
