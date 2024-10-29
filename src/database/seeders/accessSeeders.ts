@@ -12,21 +12,21 @@ export const accessSeeders = async () => {
         room_id: 1,
         entry_date: new Date('2024-10-17T09:00:00Z'),
         exit_date: new Date('2024-10-17T10:00:00Z'),
-        state: 'entry',
+        state: 'used',
       },
       {
         user_id: 2,
         room_id: 2,
         entry_date: new Date('2024-10-17T11:00:00Z'),
         exit_date: new Date('2024-10-17T12:30:00Z'),
-        state: 'entry',
+        state: 'no_show',
       },
       {
         user_id: 3,
         room_id: 3,
         entry_date: new Date('2024-10-17T13:00:00Z'),
         exit_date: new Date('2024-10-17T15:00:00Z'),
-        state: 'entry',
+        state: 'cancelled',
       },
     ];
 
@@ -41,7 +41,7 @@ export const accessSeeders = async () => {
   } catch (error: any) {
 
     console.log('----------------')
-    console.log('ERROR ACCESS SEEDERS')
+    console.log(`ERROR ACCESS SEEDERS ${error.message}`)
     console.log('----------------')
 
   } finally {
