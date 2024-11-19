@@ -1,5 +1,3 @@
-
-
 const { AccessHistory } = require('../database/models/AccessHistory'); 
 
 const accessHistories = [
